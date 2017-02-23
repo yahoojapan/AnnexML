@@ -1,0 +1,23 @@
+{
+    "emb_size" : 50,
+    "num_learner" : 15,
+    "num_nn" : 10,
+    "cls_type" : 1,
+    "cls_iter" : 10,
+    "emb_iter" : 10,
+    "label_normalize" : 1,
+    "eta0" : 0.1,
+    "lambda" : 4.0,
+    "gamma" : 10.0,
+    "pred_type" : 1,
+    "num_edge": 50,
+    "search_eps" : 0.0,
+    "num_thread" : 24,
+    "seed" : 0,
+    "verbose" : 1,
+
+    "train_file" : "data/Wiki10/wiki10_train.txt",
+    "predict_file" : "data/Wiki10/wiki10_test.txt",
+    "model_file" : "annexml-model-example.bin",
+    "result_file" : "annexml-result-example.txt"
+}
