@@ -34,12 +34,12 @@ def main():
     ndcgs = [0.0 for x in range(max_k)]
 
     for line in sys.stdin:
+        num_lines += 1
         tokens = line.rstrip().split()
         if len(tokens) != 2:
             continue
         ls = tokens[0]
         ps = tokens[1]
-        num_lines += 1
         
         l_set = set([int(x) for x in ls.split(",")])
 
