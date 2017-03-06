@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-#include "SphericalClustering.h"
+#include "DataPartitioner.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -274,18 +274,18 @@ void sampling_negatives_uniform(
 namespace yj {
 namespace xmlc {
 
-SphericalClustering::SphericalClustering() {};
+DataPartitioner::DataPartitioner() {};
 
 
-SphericalClustering::~SphericalClustering() {};
+DataPartitioner::~DataPartitioner() {};
 
 
-void SphericalClustering::Clear() {
+void DataPartitioner::Clear() {
   K_ = 0LU;
   w_index_.clear();
 };
 
-float SphericalClustering::RunKmeans(const std::vector<std::vector<std::pair<int, float> > > &data_vec,
+float DataPartitioner::RunKmeans(const std::vector<std::vector<std::pair<int, float> > > &data_vec,
                                      size_t K, size_t max_iter, int seed, int verbose) {
 
   if (verbose > 0) {
@@ -385,7 +385,7 @@ float SphericalClustering::RunKmeans(const std::vector<std::vector<std::pair<int
 }
 
 
-float SphericalClustering::RunPairwise(const std::vector<std::vector<std::pair<int, float> > > &data_vec,
+float DataPartitioner::RunPairwise(const std::vector<std::vector<std::pair<int, float> > > &data_vec,
                                        const std::vector<std::vector<int> > &labels_vec,
                                        size_t K, size_t max_iter,
                                        size_t num_nn, int label_normalize,
@@ -483,14 +483,14 @@ float SphericalClustering::RunPairwise(const std::vector<std::vector<std::pair<i
 }
 
 
-size_t SphericalClustering::GetNearestCluster(const std::vector<std::pair<int, float> > &datum) const {
+size_t DataPartitioner::GetNearestCluster(const std::vector<std::pair<int, float> > &datum) const {
   std::vector<size_t> centers;
   GetNearestClusters(datum, &centers);
   return centers[0];
 }
 
 
-float SphericalClustering::GetNearestClusters(const std::vector<std::pair<int, float> > &datum,
+float DataPartitioner::GetNearestClusters(const std::vector<std::pair<int, float> > &datum,
                                               std::vector<size_t> *centers) const {
   if (centers == NULL) { return 0.0f; }
 
@@ -522,7 +522,7 @@ float SphericalClustering::GetNearestClusters(const std::vector<std::pair<int, f
 }
 
 
-int SphericalClustering::NormalizeData(std::vector<std::vector<std::pair<int, float> > > *data_vec) const {
+int DataPartitioner::NormalizeData(std::vector<std::vector<std::pair<int, float> > > *data_vec) const {
   for (size_t i = 0; i < data_vec->size(); ++i) {
     float norm = 0.0f;
     for (size_t f = 0; f < (*data_vec)[i].size(); ++f) {
@@ -540,7 +540,7 @@ int SphericalClustering::NormalizeData(std::vector<std::vector<std::pair<int, fl
   return 1;
 }
 
-void SphericalClustering::CopiedFrom(const SphericalClustering &that) {
+void DataPartitioner::CopiedFrom(const DataPartitioner &that) {
   K_ = that.K_;
   w_index_.resize(that.w_index_.size());
   for (size_t i = 0; i < w_index_.size(); ++i) {
@@ -551,7 +551,7 @@ void SphericalClustering::CopiedFrom(const SphericalClustering &that) {
   }
 }
 
-int SphericalClustering::WriteToStream(FILE *stream) const {
+int DataPartitioner::WriteToStream(FILE *stream) const {
   yj::xmlc::Utils::WriteNumToStream(K_, stream);
   yj::xmlc::Utils::WriteNumToStream(w_index_.size(), stream);
   for (size_t i = 0; i < w_index_.size(); ++i) {
@@ -566,7 +566,7 @@ int SphericalClustering::WriteToStream(FILE *stream) const {
 }
 
 
-int SphericalClustering::ReadFromStream(FILE *stream) {
+int DataPartitioner::ReadFromStream(FILE *stream) {
   size_t vec_size;
   w_index_.clear();
 

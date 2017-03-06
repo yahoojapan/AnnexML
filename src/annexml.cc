@@ -15,7 +15,6 @@
 //
 
 #include <cstdio>
-#include <fstream>
 
 #include "picojson.h"
 

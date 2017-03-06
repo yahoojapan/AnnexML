@@ -22,8 +22,6 @@
 namespace yj {
 namespace xmlc {
 
-const std::string eof_line = "<<<FILE READER END OF FILE>>>";
-
 class FileReader {
   public:
     FileReader();

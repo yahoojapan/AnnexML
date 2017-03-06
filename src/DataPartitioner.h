@@ -17,16 +17,15 @@
 #pragma once
 
 #include <cstdio>
-#include <cstdlib>
 #include <vector>
 
 namespace yj {
 namespace xmlc {
 
-class SphericalClustering {
+class DataPartitioner {
   public:
-    SphericalClustering();
-    ~SphericalClustering();
+    DataPartitioner();
+    ~DataPartitioner();
     void Clear();
     float RunKmeans(const std::vector<std::vector<std::pair<int, float> > > &data_vec,
                    size_t K, size_t max_iter, int seed, int verbose);
@@ -40,7 +39,7 @@ class SphericalClustering {
     float GetNearestClusters(const std::vector<std::pair<int, float> > &datum,
                              std::vector<size_t> *centers) const;
     int NormalizeData(std::vector<std::vector<std::pair<int, float> > > *data_vec) const;
-    void CopiedFrom(const SphericalClustering &that);
+    void CopiedFrom(const DataPartitioner &that);
     int WriteToStream(FILE *stream) const;
     int ReadFromStream(FILE *stream);
     size_t K() const { return K_; }

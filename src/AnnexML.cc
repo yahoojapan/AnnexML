@@ -22,9 +22,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <functional>
 #include <random>
-#include <string>
 #include <unordered_map>
 
 #include <omp.h>
@@ -39,7 +37,7 @@ namespace xmlc {
 
 AnnexML::AnnexML()
   : param_(), 
-    clustering_vec_(), embedding_vec_(), labels_()
+    partitioning_vec_(), embedding_vec_(), labels_()
 {}
 
 AnnexML::~AnnexML() {
@@ -77,13 +75,13 @@ int AnnexML::Init(const AnnexMLParameter &param, bool load_model) {
     size_t num_used_learner = param_.num_learner();
     if (num_used_learner > num_vec) { num_used_learner = num_vec; }
 
-    size_t clustering_vec_size = 0, embedding_vec_size = 0, w_size = 0, e_size = 0;
-    clustering_vec_.resize(num_used_learner);
+    size_t partitioning_vec_size = 0, embedding_vec_size = 0, w_size = 0, e_size = 0;
+    partitioning_vec_.resize(num_used_learner);
     embedding_vec_.resize(num_used_learner);
     for (size_t i = 0; i < num_used_learner; ++i) {
       start_pos = ftell(fp);
-      clustering_vec_[i].ReadFromStream(fp);
-      clustering_vec_size += ftell(fp) - start_pos;
+      partitioning_vec_[i].ReadFromStream(fp);
+      partitioning_vec_size += ftell(fp) - start_pos;
 
       embedding_vec_[i].ReadFromStream(fp);
       embedding_vec_size += embedding_vec_[i].Size();
@@ -92,12 +90,12 @@ int AnnexML::Init(const AnnexMLParameter &param, bool load_model) {
       e_size += embedding_vec_[i].GetEmbeddingSize();
     }
 
-    size_t total_size = sizeof(param_) + clustering_vec_size + embedding_vec_size + labels_size;
+    size_t total_size = sizeof(param_) + partitioning_vec_size + embedding_vec_size + labels_size;
 
     fclose(fp);
     float mb = 1000 * 1000;
     fprintf(stderr, "Loaded model from %s\n", param_.model_file().c_str());
-    fprintf(stderr, "Total: %.2f MB => labels: %.2f MB, clustering: %.2f MB, embedding: %.2f MB (matrix: %.2f MB, embed: %.2f MB) \n", total_size / mb, labels_size / mb, clustering_vec_size / mb, embedding_vec_size / mb, w_size / mb, e_size / mb);
+    fprintf(stderr, "Total: %.2f MB => labels: %.2f MB, partitioning: %.2f MB, embedding: %.2f MB (matrix: %.2f MB, embed: %.2f MB) \n", total_size / mb, labels_size / mb, partitioning_vec_size / mb, embedding_vec_size / mb, w_size / mb, e_size / mb);
 
     if (param_.pred_type() > 0) {
       size_t num_thread = (param_.num_thread() > 0) ? param_.num_thread() : 1;
@@ -180,7 +178,7 @@ int AnnexML::Train() {
     for (size_t k = 0; k < num_cluster; ++k) { e_seeds[i][k] = sdist(local_rnd_gen); }
   }
 
-  SphericalClustering().NormalizeData(&data_vec);
+  DataPartitioner().NormalizeData(&data_vec);
 
   std::vector<std::vector<std::vector<size_t> > > cluster_assign_vec(num_learner);
   std::vector<std::vector<std::vector<double> > > cluster_prec_vec(num_learner);
@@ -222,7 +220,7 @@ int AnnexML::Train() {
   }
   Utils::WriteNumToStream(num_learner, fp);
   for (size_t i = 0; i < num_learner; ++i) {
-    clustering_vec_[i].WriteToStream(fp);
+    partitioning_vec_[i].WriteToStream(fp);
     embedding_vec_[i].WriteToStream(fp);
   }
   fclose(fp);
@@ -250,10 +248,10 @@ int AnnexML::Predict() const {
   size_t num_data = data_vec.size();
   fprintf(stderr, "Load Predict Data: #data=%lu #feature=%d #label=%d\n", num_data, max_fid, max_lid);
 
-  SphericalClustering().NormalizeData(&data_vec);
+  DataPartitioner().NormalizeData(&data_vec);
 
   size_t num_used_learner = param_.num_learner();
-  if (num_used_learner > clustering_vec_.size()) { num_used_learner = clustering_vec_.size(); }
+  if (num_used_learner > partitioning_vec_.size()) { num_used_learner = partitioning_vec_.size(); }
 
   std::vector<size_t> cls_results(num_data);
   std::vector<std::unordered_map<size_t, int> > emb_results(num_data);
@@ -271,16 +269,16 @@ int AnnexML::Predict() const {
   for (size_t l = 0; l < num_used_learner; ++l) {
     cls_results.clear();
 
-    // clustering
+    // partitioning
     tmp_start = Utils::GetTimeOfDaySec();
 #pragma omp parallel for schedule(dynamic)
     for (size_t i = 0; i < num_data; ++i) {
-      size_t cluster = clustering_vec_[l].GetNearestCluster(data_vec[i]);
+      size_t cluster = partitioning_vec_[l].GetNearestCluster(data_vec[i]);
       cls_results[i] = cluster;
     }
 
     // for cache efficiency, group tasks by each cluster
-    std::vector<std::vector<size_t> > cluster_assign(clustering_vec_[l].K());
+    std::vector<std::vector<size_t> > cluster_assign(partitioning_vec_[l].K());
     for (size_t i = 0; i < num_data; ++i) {
       size_t cluster = cls_results[i];
       cluster_assign[cluster].push_back(i);
@@ -344,7 +342,7 @@ int AnnexML::Predict() const {
   double elapsed = Utils::GetTimeOfDaySec() - start;
   double elapsed_per_sample = 1000.0 * elapsed / num_data;
   fprintf(stderr, "Elapsed: %.4f sec, %.4f msec/sample (* %lu threads = %.4f msec/sample)\n", elapsed, elapsed_per_sample, num_thread, num_thread * elapsed_per_sample);
-  fprintf(stderr, "Clustering: %.4f sec, Embedding: %.4f sec, Aggregating: %.4f sec\n", c_elapsed, e_elapsed, a_elapsed);
+  fprintf(stderr, "Partitioning: %.4f sec, Embedding: %.4f sec, Aggregating: %.4f sec\n", c_elapsed, e_elapsed, a_elapsed);
 
 
   for (size_t i = 0; i < results.size(); ++i) {
@@ -384,10 +382,10 @@ int AnnexML::LearnPartitioning(const std::vector<std::vector<std::pair<int, floa
 
   size_t num_done_task = 0;
   if (verbose == 0) {
-    fprintf(stderr, "\rClustering progress: %6.2f%% (#task=%lu/%lu)", 0.0f, num_done_task, num_learner);
+    fprintf(stderr, "\rPartitioning progress: %6.2f%% (#task=%lu/%lu)", 0.0f, num_done_task, num_learner);
   }
 
-  std::vector<SphericalClustering> c_vec(num_learner);
+  std::vector<DataPartitioner> c_vec(num_learner);
 
 #pragma omp parallel for schedule(dynamic)
   for (size_t i = 0; i < num_learner; ++i) {
@@ -405,25 +403,25 @@ int AnnexML::LearnPartitioning(const std::vector<std::vector<std::pair<int, floa
       omp_set_lock(&lock);
       ++num_done_task;
       float progress = 100.0f * num_done_task / num_learner;
-      fprintf(stderr, "\rClustering progress: %6.2f%% (#task=%lu/%lu)", progress, num_done_task, num_learner);
+      fprintf(stderr, "\rPartitioning progress: %6.2f%% (#task=%lu/%lu)", progress, num_done_task, num_learner);
       omp_unset_lock(&lock);
     }
   }
-  if (verbose == 0) { fprintf(stderr, "\rClustering done!                                    \n"); }
+  if (verbose == 0) { fprintf(stderr, "\rPartitioning done!                                    \n"); }
 
   // Force memory deallocation (something wrong in my computational environment...)
   // This is hacky
-  clustering_vec_.resize(num_learner);
-  for (size_t i = 0; i < clustering_vec_.size(); ++i) {
-    clustering_vec_[i].CopiedFrom(c_vec[i]);
+  partitioning_vec_.resize(num_learner);
+  for (size_t i = 0; i < partitioning_vec_.size(); ++i) {
+    partitioning_vec_[i].CopiedFrom(c_vec[i]);
   }
-  std::vector<SphericalClustering>().swap(c_vec);
+  std::vector<DataPartitioner>().swap(c_vec);
 
   std::vector<size_t> cluster_vec(data_vec.size());
   for (size_t i = 0; i < num_learner; ++i) {
 #pragma omp parallel for schedule(dynamic)
     for (size_t j = 0; j < data_vec.size(); ++j) {
-      cluster_vec[j] = clustering_vec_[i].GetNearestCluster(data_vec[j]);
+      cluster_vec[j] = partitioning_vec_[i].GetNearestCluster(data_vec[j]);
     }
 
     for (size_t j = 0; j < data_vec.size(); ++j) {

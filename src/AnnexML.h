@@ -16,12 +16,11 @@
 
 #pragma once
 
-#include <string>
 #include <vector>
 
 #include "FileReader.h"
 #include "AnnexMLParameter.h"
-#include "SphericalClustering.h"
+#include "DataPartitioner.h"
 #include "LLEmbedding.h"
 
 namespace yj {
@@ -49,7 +48,7 @@ class AnnexML {
                        std::vector<std::vector<std::vector<double> > > *cluster_prec_vec);
 
     AnnexMLParameter param_;
-    std::vector<SphericalClustering> clustering_vec_;
+    std::vector<DataPartitioner> partitioning_vec_;
     std::vector<LLEmbedding> embedding_vec_;
     std::vector<std::vector<int> > labels_;
 };
