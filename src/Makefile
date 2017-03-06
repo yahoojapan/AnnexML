@@ -5,7 +5,8 @@ CXX = g++
 INCLUDES += -I$(SRCTOP) -I../include
 LIBS +=
 
-CXXFLAG = -std=c++11 -O3 -march=native -mfma -funroll-loops -ffast-math -Wno-unused-value -Wall -g -fopenmp
+CXXFLAG = -std=c++11 -O3 -march=native -funroll-loops -ffast-math -Wno-unused-value -Wall -g -fopenmp
+CXXFLAG += -DUSEFMA -mfma
 
 all:annexml
 

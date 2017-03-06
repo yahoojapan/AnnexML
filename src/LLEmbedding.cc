@@ -26,15 +26,9 @@
 
 #include "Utils.h"
 #include "Reindexer.h"
+#include "vectorize.h"
 
 namespace {
-
-const size_t align_byte = 32;
-inline size_t calc_aligned_float_size(size_t n) {
-  size_t m = align_byte / sizeof(float);
-  if (n % m == 0) { return n; }
-  return m * ((n / m) + 1);
-}
 
 inline void sparse_dot(const std::vector<std::pair<int, float> > &vec,
                        const std::vector<std::vector<float> > &mat,
@@ -76,41 +70,6 @@ inline void sparse_dot(const std::vector<std::pair<int, float> > &vec,
     }
     ++vitr;
   }
-}
-
-inline float dense_dot(const float *v1, const float *v2, size_t n) {
-  __m256 YMMacc = _mm256_setzero_ps();
-
-  for (size_t i = 0; i < n; i += 8) {
-    __m256 YMM1 = _mm256_load_ps(v1 + i);
-    __m256 YMM2 = _mm256_load_ps(v2 + i);
-    YMMacc = _mm256_fmadd_ps(YMM1, YMM2, YMMacc);
-  }
-  __attribute__((aligned(32))) float t[8] = {0};
-  _mm256_store_ps(t, YMMacc);
-
-  return t[0] + t[1] + t[2] + t[3] + t[4] + t[5] + t[6] + t[7];
-}
-
-inline float dense_neg_edist(const float *v1, const float *v2, size_t n) {
-  __m256 YMMacc = _mm256_setzero_ps();
-
-  for (size_t i = 0; i < n; i += 8) {
-    __m256 YMM1 = _mm256_load_ps(v1 + i);
-    __m256 YMM2 = _mm256_load_ps(v2 + i);
-    YMM1 = _mm256_sub_ps(YMM1, YMM2);
-    YMMacc = _mm256_fmadd_ps(YMM1, YMM1, YMMacc);
-  }
-  __attribute__((aligned(32))) float t[8] = {0};
-  _mm256_store_ps(t, YMMacc);
-
-  float ret = t[0] + t[1] + t[2] + t[3] + t[4] + t[5] + t[6] + t[7];
-
-  return -ret;
-}
-
-inline float calc_l2norm(const float *v, size_t n) {
-  return std::sqrt(dense_dot(v, v, n));
 }
 
 
@@ -455,8 +414,8 @@ int LLEmbedding::Search(
 #ifndef SLEEC
     float v = dense_dot(z, embeddings_ + idx * aligned_embed_size, aligned_embed_size);
 #else
-    // for SLEEC prediction
-    float v = dense_neg_edist(z, embeddings_ + idx * aligned_embed_size, aligned_embed_size);
+    // for SLEEC prediction, use negative Euclidean distance
+    float v = -edist(z, embeddings_ + idx * aligned_embed_size, aligned_embed_size);
 #endif
 
     if (heap.size() >= num_nn) {

@@ -24,10 +24,9 @@
 #include <unordered_map>
 
 #include "Utils.h"
+#include "vectorize.h"
 
 namespace {
-
-const size_t align_byte = 32;
 
 union Entry {
   int flag;
@@ -37,21 +36,6 @@ union Entry {
 };
 
 auto comp = [](const std::pair<size_t,float> &a,const std::pair<size_t,float> &b){return a.second<b.second;};
-
-inline float edist(const float *v1, const float *v2, size_t n) {
-  __m256 YMMacc = _mm256_setzero_ps();
-
-  for (size_t i = 0; i < n; i += 8) {
-    __m256 YMM1 = _mm256_load_ps(v1 + i);
-    __m256 YMM2 = _mm256_load_ps(v2 + i);
-    YMM1 = _mm256_sub_ps(YMM1, YMM2);
-    YMMacc = _mm256_fmadd_ps(YMM1, YMM1, YMMacc);
-  }
-  __attribute__((aligned(32))) float t[8] = {0};
-  _mm256_store_ps(t, YMMacc);
-
-  return t[0] + t[1] + t[2] + t[3] + t[4] + t[5] + t[6] + t[7];
-}
 
 } // namespace
 
