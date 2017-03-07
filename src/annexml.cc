@@ -16,8 +16,6 @@
 
 #include <cstdio>
 
-#include "picojson.h"
-
 #include "AnnexML.h"
 #include "AnnexMLParameter.h"
 
