@@ -313,7 +313,7 @@ float DataPartitioner::RunKmeans(const std::vector<std::vector<std::pair<int, fl
   }
 
   if (K == 1) {
-    if (verbose > 0) { fprintf(stderr, "\rClustering skip!\n"); }
+    if (verbose > 0) { fprintf(stderr, "\rPartitioning skip!\n"); }
     return 0.0f;
   }
 
@@ -378,7 +378,7 @@ float DataPartitioner::RunKmeans(const std::vector<std::vector<std::pair<int, fl
   }
 
   if (verbose > 0) {
-    fprintf(stderr, "\rClustering done! (Iter: %lu, ObjectiveValue: %.6f)\n", iter+1, prev_obj_value);
+    fprintf(stderr, "\rPartitioning done! (Iter: %lu, ObjectiveValue: %.6f)\n", iter+1, prev_obj_value);
   }
 
   return prev_obj_value;
@@ -422,7 +422,7 @@ float DataPartitioner::RunPairwise(const std::vector<std::vector<std::pair<int, 
   }
 
   if (K == 1) {
-    if (verbose > 0) { fprintf(stderr, "\rClustering skip!\n"); }
+    if (verbose > 0) { fprintf(stderr, "\rPartitioning skip!\n"); }
     return 0.0f;
   }
 
@@ -475,7 +475,7 @@ float DataPartitioner::RunPairwise(const std::vector<std::vector<std::pair<int, 
   }
 
   if (verbose > 0) {
-    fprintf(stderr, "\rClustering done! (Iter: %lu, ObjectiveValue: %.6f)\n", iter+1, prev_obj_value);
+    fprintf(stderr, "\rPartitioning done! (Iter: %lu, ObjectiveValue: %.6f)\n", iter+1, prev_obj_value);
     fprintf(stderr, "nnz: %lu (in %lu, %.4f%%)\n", nnz, num_all_coef, 100.0f * nnz / num_all_coef);
   }
 
