@@ -79,8 +79,8 @@ Usage of the evaluation script written in python is as follow:
     pred_type         Algorithm type used for prediction of k-nearest neighbor classifier
                       1 : approximate nearest neighbor search method which explores learned KNNG
                       0 : brute-force calculation
-    num_edge          Number of directed edges for each vertex in learned KNNG (only used if pred_type = 1)
-    search_eps        Epsilon parameter for exploration of KNNG (only used if pred_type = 1)
+    num_edge          Number of direct edges per vertex in learned KNNG (only used if pred_type = 1)
+    search_eps        Parameter for exploration of KNNG (only used if pred_type = 1)
     num_thread        Number of CPU threads used in training and prediction
     seed              Random seed
     verbose           Vervosity level (ignore if num_thread > 1)
@@ -109,8 +109,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-Subcomponents
--------------
+Dependencies
+------------
 
 AnnexML includes the following software.
 
