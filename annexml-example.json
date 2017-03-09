@@ -10,7 +10,7 @@
     "lambda" : 4.0,
     "gamma" : 10.0,
     "pred_type" : 1,
-    "num_edge": 50,
+    "num_edge" : 50,
     "search_eps" : 0.0,
     "num_thread" : 24,
     "seed" : 0,

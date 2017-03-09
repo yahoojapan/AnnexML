@@ -1,7 +1,9 @@
-AnnexML
-=======
+AnnexML: Approximate Nearest Neighbor Search for Extreme Multi-Label Classification
+===================================================================================
 
-Approximate Nearest Neighbor Search for Extreme Multi-Label Classification
+AnnexML is a multi-label classifier designed for extremely large label space (10^4 to 10^6).
+At training step, AnnexML constructs k-nearest neighbor graph of the label vectors and attempts to reproduce the graph structure in the embedding space.
+The prediction is efficiently performed by using an approximate nearest neighbor search method which efficiently explores the learned k-nearest neighbor graph in the embedding space.
 
 
 Build
@@ -60,6 +62,34 @@ Usage of the evaluation script written in python is as follow:
     nDCG@5=0.694374
 
 
+#### Model Parameters and File Paths
+
+    emb_size          Dimension size of embedding vectors
+    num_learner       Number of learners (or models) for emsemble learning
+    num_nn            Number of (approximate) nearest neighbors used in training and prediction
+    cls_type          Algorithm type used for data partitioning
+                      1 : learning procedure which finds min-cut of approximate KNNG
+                      0 : k-means clustering
+    cls_iter          Number of epochs for data partitioning algorithms
+    emb_iter          Number of epochs for learning embeddings
+    label_normalize   Label vectors are normalized or not
+    eta0              Initial value of AdaGrad learning rate adjustement
+    lambda            L1-regularization parameter of data partitioning (only used if cls_type = 1)
+    gamma             Scaling parameter for cosine ([-1, 1] to [-gamma, gamma]) in learning embeddings
+    pred_type         Algorithm type used for prediction of k-nearest neighbor classifier
+                      1 : approximate nearest neighbor search method which explores learned KNNG
+                      0 : brute-force calculation
+    num_edge          Number of directed edges for each vertex in learned KNNG (only used if pred_type = 1)
+    search_eps        Epsilon parameter for exploration of KNNG (only used if pred_type = 1)
+    num_thread        Number of CPU threads used in training and prediction
+    seed              Random seed
+    verbose           Vervosity level (ignore if num_thread > 1)
+
+    train_file        File path of training data
+    predict_file      File path of prediction data
+    model_file        File path of output model
+    result_file       File path of prediction result
+
 
 License
 -------
@@ -77,6 +107,14 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+
+Subcomponents
+-------------
+
+AnnexML includes the following software.
+
+- (2-clause BSD license) [picojson](https://github.com/kazuho/picojson)
 
 
 Copyright &copy; 2017 Yahoo Japan Corporation All Rights Reserved.
