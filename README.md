@@ -109,6 +109,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
+Publications
+------------
+
+- Yukihiro Tagami. AnnexML: Approximate Nearest Neighbor Search for Extreme Multi-label Classification. KDD 2017.
+
+
 Dependencies
 ------------
 
