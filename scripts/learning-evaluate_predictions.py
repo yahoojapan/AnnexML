@@ -14,10 +14,17 @@
 # limitations under the License.
 #
 
+from __future__ import print_function
+
 import sys
 import math
+import argparse
 
 def main():
+    parser = argparse.ArgumentParser(description='Calc precision and nDCG')
+    parser.add_argument('-o', '--ordered', action='store_true', help='Input is already ordered (or sorted)')
+
+    args = parser.parse_args()
 
     max_k = 5;
 
@@ -43,15 +50,19 @@ def main():
         
         l_set = set([int(x) for x in ls.split(",")])
 
+        k_list = list()
         pred_dict = dict()
         for t in ps.split(","):
             p, v = t.split(":")
             p = int(p)
             v = float(v)
             pred_dict[p] = v
+            k_list.append(p)
 
-        # compatibility for Matlab scripts
-        k_list = sorted([k for k in pred_dict.keys()], key=lambda x:(-pred_dict[x], x))
+        if not args.ordered:
+            # compatibility for (old) Matlab scripts
+            k_list = sorted([k for k in pred_dict.keys()], key=lambda x:(-pred_dict[x], x))
+
         if len(k_list) > max_k:
             k_list = k_list[:max_k]
 
@@ -68,18 +79,16 @@ def main():
             ndcgs[i] += sum_dcg / idcg_list[min(i, len(l_set)-1)]
 
 
-    print num_lines
-    print accs
-    print ndcgs
+    print("#samples={0}".format(num_lines))
 
     a_sum = 0.0
     for n, a in enumerate(accs):
         a_sum += float(a)
         p_at_n = a_sum / num_lines / (n + 1)
-        print "P@%d=%f" % (n+1, p_at_n)
+        print("P@{0}={1:.6f}".format(n+1, p_at_n))
 
     for n, ndcg in enumerate(ndcgs):
-        print "nDCG@%d=%f" % (n+1, ndcg / num_lines)
+        print("nDCG@{0}={1:.6f}".format(n+1, ndcg / num_lines))
 
 
 if __name__ == '__main__':
