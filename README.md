@@ -63,6 +63,19 @@ Usage of the evaluation script written in python is as follow:
     nDCG@4=0.730631
     nDCG@5=0.694269
 
+    $ cat annexml-result-example.txt | python scripts/learning-evaluate_predictions_propensity_scored.py data/Wiki10/wiki10_train.txt -A 0.55 -B 1.5 
+    #samples=6616
+    PSP@1=0.119057
+    PSP@2=0.122856
+    PSP@3=0.127683
+    PSP@4=0.131884
+    PSP@5=0.135722
+    PSnDCG@1=0.119057
+    PSnDCG@2=0.121939
+    PSnDCG@3=0.125388
+    PSnDCG@4=0.128349
+    PSnDCG@5=0.130996
+
 
 #### Model Parameters and File Paths
 
