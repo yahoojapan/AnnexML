@@ -5,13 +5,17 @@ AnnexML is a multi-label classifier designed for extremely large label space (10
 At training step, AnnexML constructs k-nearest neighbor graph of the label vectors and attempts to reproduce the graph structure in the embedding space.
 The prediction is efficiently performed by using an approximate nearest neighbor search method which efficiently explores the learned k-nearest neighbor graph in the embedding space.
 
+For more detail, please see [the paper](http://www.kdd.org/kdd2017/papers/view/annexml-approximate-nearest-neighbor-search-for-extreme-multi-label-classif).
+
 
 Build
 -----
 
-A recent compiler supporting C++11 is required.
+A recent compiler supporting C++11 and OpenMP, such as g++, is required.
 
     $ make -C src/ annexml
+
+If your CPUs do not support [FMA instruction set](https://en.wikipedia.org/wiki/FMA_instruction_set), you should comment out the line `CXXFLAG += -DUSEFMA -mfma` in `src/Makefile` before making.
 
 
 Usage
@@ -47,19 +51,17 @@ Examples of prediction:
 Usage of the evaluation script written in python is as follow:
 
     $ cat annexml-result-example.txt | python scripts/learning-evaluate_predictions.py
-    6616
-    [5724, 4905, 4116, 3491, 2998]
-    [5724.0, 5407.167550874974, 5104.534229455956, 4833.8975471349, 4593.97654093441]
+    #samples=6616
     P@1=0.865175
-    P@2=0.803280
-    P@3=0.742896
-    P@4=0.689087
-    P@5=0.641898
+    P@2=0.803507
+    P@3=0.742846
+    P@4=0.689049
+    P@5=0.641717
     nDCG@1=0.865175
-    nDCG@2=0.817287
-    nDCG@3=0.771544
-    nDCG@4=0.730637
-    nDCG@5=0.694374
+    nDCG@2=0.817462
+    nDCG@3=0.771536
+    nDCG@4=0.730631
+    nDCG@5=0.694269
 
 
 #### Model Parameters and File Paths
@@ -109,10 +111,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
+Contributor License Agreement
+-----------------------------
+
+This project requires contributors to agree to a [Contributor License Agreement (CLA)](https://gist.github.com/ydnjp/3095832f100d5c3d2592).
+
+Note that only for contributions to the AnnexML repository on the GitHub (https://github.com/yahoojapan/AnnexML), the contibutors of them shall be deemed to have agreed to the CLA without individual written agreements.
+
+
 Publications
 ------------
 
-- Yukihiro Tagami. AnnexML: Approximate Nearest Neighbor Search for Extreme Multi-label Classification. KDD 2017.
+- Yukihiro Tagami. AnnexML: Approximate Nearest Neighbor Search for Extreme Multi-label Classification. KDD 2017. ([KDD Webpage](http://www.kdd.org/kdd2017/papers/view/annexml-approximate-nearest-neighbor-search-for-extreme-multi-label-classif))
 
 
 Dependencies
