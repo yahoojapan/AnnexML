@@ -26,18 +26,18 @@ def main():
 
     args = parser.parse_args()
 
-    max_k = 5;
+    max_k = 5
 
-    dcg_list  = [0 for i in range(max_k)]
+    dcg_list = [0 for i in range(max_k)]
     idcg_list = [0 for i in range(max_k)]
-    dcg_list[0]  = 1.0
+    dcg_list[0] = 1.0
     idcg_list[0] = 1.0
     for i in range(1, max_k):
         dcg_list[i] = 1.0 / math.log(i + 2, 2)
         idcg_list[i] = idcg_list[i-1] + dcg_list[i]
 
     num_lines = 0
-    accs  = [0 for i in range(max_k)]
+    accs = [0 for i in range(max_k)]
     ndcgs = [0.0 for x in range(max_k)]
 
     for line in sys.stdin:
@@ -61,7 +61,7 @@ def main():
 
         if not args.ordered:
             # compatibility for (old) Matlab scripts
-            k_list = sorted([k for k in pred_dict.keys()], key=lambda x:(-pred_dict[x], x))
+            k_list = sorted([k for k in pred_dict.keys()], key=lambda x: (-pred_dict[x], x))
 
         if len(k_list) > max_k:
             k_list = k_list[:max_k]

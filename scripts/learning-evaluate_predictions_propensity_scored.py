@@ -19,10 +19,11 @@ from __future__ import print_function
 import sys
 import math
 import argparse
+from collections import defaultdict
 
 def calc_propensity_score(train_file, A, B):
     num_inst = 0
-    freqs = dict()
+    freqs = defaultdict(int)
 
     for line in open(train_file):
         if line.find(":") == -1:
@@ -35,12 +36,8 @@ def calc_propensity_score(train_file, A, B):
 
         for l in labels.split(","):
             l = int(l)
+            freqs[l] += 1
 
-            if l not in freqs:
-                freqs[l]  = 1
-            else:
-                freqs[l] += 1
-        
     C = (math.log(num_inst) - 1) * pow(B+1, A)
 
     pw_dict = dict()
@@ -58,25 +55,25 @@ def main():
     parser.add_argument('train_file', help='Input train file for calculating propensity score')
     parser.add_argument('-o', '--ordered', action='store_true', help='Input is already ordered (or sorted)')
     parser.add_argument('-A', '--A', type=float, default=0.55, help='A')
-    parser.add_argument('-B', '--B', type=float, default=1.5,  help='B')
+    parser.add_argument('-B', '--B', type=float, default=1.5, help='B')
 
     args = parser.parse_args()
 
-    max_k = 5;
+    max_k = 5
 
     pw_dict, default_pw = calc_propensity_score(args.train_file, args.A, args.B)
 
-    dcg_list  = [0 for i in range(max_k)]
+    dcg_list = [0 for i in range(max_k)]
     idcg_list = [0 for i in range(max_k)]
-    dcg_list[0]  = 1.0
+    dcg_list[0] = 1.0
     idcg_list[0] = 1.0
     for i in range(1, max_k):
         dcg_list[i] = 1.0 / math.log(i + 2, 2)
         idcg_list[i] = idcg_list[i-1] + dcg_list[i]
 
     num_lines = 0
-    n_accs  = [0 for i in range(max_k)]
-    d_accs  = [0 for i in range(max_k)]
+    n_accs = [0 for i in range(max_k)]
+    d_accs = [0 for i in range(max_k)]
     n_ndcgs = [0.0 for x in range(max_k)]
     d_ndcgs = [0.0 for x in range(max_k)]
 
@@ -87,7 +84,7 @@ def main():
             continue
         ls = tokens[0]
         ps = tokens[1]
-        
+
         l_set = set([int(x) for x in ls.split(",")])
 
         k_list = list()
@@ -101,7 +98,7 @@ def main():
 
         if not args.ordered:
             # compatibility for (old) Matlab scripts
-            k_list = sorted([k for k in pred_dict.keys()], key=lambda x:(-pred_dict[x], x))
+            k_list = sorted([k for k in pred_dict.keys()], key=lambda x: (-pred_dict[x], x))
 
         if len(k_list) > max_k:
             k_list = k_list[:max_k]
