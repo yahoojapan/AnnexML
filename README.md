@@ -129,7 +129,7 @@ Contributor License Agreement
 
 This project requires contributors to agree to a [Contributor License Agreement (CLA)](https://gist.github.com/ydnjp/3095832f100d5c3d2592).
 
-Note that only for contributions to the AnnexML repository on the GitHub (https://github.com/yahoojapan/AnnexML), the contibutors of them shall be deemed to have agreed to the CLA without individual written agreements.
+Note that only for contributions to the AnnexML repository on the GitHub (https://github.com/yahoojapan/AnnexML), the contributors of them shall be deemed to have agreed to the CLA without individual written agreements.
 
 
 Publications
